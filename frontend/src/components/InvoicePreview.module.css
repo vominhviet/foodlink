@@ -1,0 +1,210 @@
+/* Input style cho thông tin hóa đơn */
+.infoInput {
+    flex: 1;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    padding: 6px 8px;
+    outline: none;
+}
+
+.infoInput:focus {
+    border-bottom: 1px solid #007bff;
+}
+/* InvoicePreview.module.css - Style giống demo HTML, dùng class cho React component */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+}
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+    font-size: 32px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #3498db;
+}
+.fontSelector {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+.fontSelector h2 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-size: 20px;
+}
+.fontOptions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+.fontOption {
+    padding: 12px 20px;
+    background: #e0e0e0;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 16px;
+}
+.fontOption:hover {
+    background: #2c3e50;
+    color: white;
+    transform: translateY(-2px);
+}
+.active {
+    background: #2c3e50;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.invoicePreview {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    border: 1px solid #eaeaea;
+}
+.invoiceHeader {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 20px;
+}
+.invoiceHeader h2 {
+    font-weight: 700;
+    font-size: 28px;
+    color: #2c3e50;
+    margin: 0;
+    text-transform: uppercase;
+}
+.companyInfo {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #7f8c8d;
+}
+.invoiceDetails {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.invoiceInfo, .clientInfo {
+    font-size: 14px;
+    line-height: 1.6;
+}
+.invoiceInfo strong, .clientInfo strong {
+    color: #2c3e50;
+}
+.itemsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+.itemsTable th {
+    background-color: #2c3e50;
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+.itemsTable td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+}
+.itemsTable tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+.textRight {
+    text-align: right;
+}
+.textCenter {
+    text-align: center;
+}
+.totalSection {
+    margin-left: auto;
+    width: 300px;
+}
+.totalLine {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+.grandTotal {
+    font-weight: 700;
+    font-size: 18px;
+    color: #2c3e50;
+    margin-top: 10px;
+    border-top: 2px solid #2c3e50;
+    padding-top: 10px;
+}
+.footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 13px;
+    color: #7f8c8d;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+.actionButtons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+.btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btnPrimary {
+    background: #3498db;
+    color: white;
+}
+.btnPrimary:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+.btnSuccess {
+    background: #27ae60;
+    color: white;
+}
+.btnSuccess:hover {
+    background: #219653;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+}
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    .invoiceDetails {
+        flex-direction: column;
+    }
+    .totalSection {
+        width: 100%;
+    }
+    .itemsTable {
+        font-size: 14px;
+    }
+    .actionButtons {
+        flex-direction: column;
+    }
+}
