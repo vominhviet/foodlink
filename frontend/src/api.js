@@ -12,14 +12,7 @@ export const register = async (username, password) => {
   return axios.post(`${API_BASE_URL}/auth/register`, { username, password });
 };
 
-// ...existing code...
-
-// Lấy danh sách sản phẩm
-export const getProducts = async () => {
-  return axios.get(`${API_BASE_URL}/products`);
-};
-
-// Lấy danh sách hóa đơn
+/// Lấy danh sách hóa đơn
 export const getInvoices = async () => {
   return axios.get(`${API_BASE_URL}/invoices`);
 };

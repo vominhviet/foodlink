@@ -19,19 +19,6 @@ async function initDatabase() {
       )
     `);
 
-    // Tạo bảng products
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS products (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL,
-        price DECIMAL(10, 2) NOT NULL,
-        stock INTEGER DEFAULT 0,
-        description TEXT,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
     // Tạo bảng customers
     await pool.query(`
       CREATE TABLE IF NOT EXISTS customers (
@@ -70,30 +57,34 @@ async function initDatabase() {
       )
     `);
 
+    // Tạo bảng sản phẩm
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS products (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255),
+        unit VARCHAR(50),
+        stock INTEGER DEFAULT 0,
+        price INTEGER DEFAULT 0,
+        description TEXT
+      );
+    `);
+
+    // Tạo bảng lịch sử nhập/xuất kho
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS stock_history (
+        id SERIAL PRIMARY KEY,
+        product_id INTEGER,
+        product_name VARCHAR(255),
+        type VARCHAR(10), -- 'import' hoặc 'export'
+        quantity INTEGER,
+        price INTEGER,
+        total INTEGER,
+        date TIMESTAMP DEFAULT NOW(),
+        username VARCHAR(100)
+      );
+    `);
+
     console.log('✅ Database tables created successfully!');
-
-    // Chèn dữ liệu mẫu vào products
-    await pool.query(`
-      INSERT INTO products (name, price, stock, description) 
-      VALUES 
-      ('iPhone 15 Pro', 25000000, 50, 'Điện thoại iPhone 15 Pro 128GB'),
-      ('Samsung Galaxy S23', 18000000, 30, 'Điện thoại Samsung Galaxy S23'),
-      ('MacBook Pro M2', 42000000, 20, 'Laptop MacBook Pro 14 inch M2')
-      ON CONFLICT DO NOTHING
-    `);
-
-    // Chèn dữ liệu mẫu vào customers
-    await pool.query(`
-      INSERT INTO customers (name, phone, email, address) 
-      VALUES 
-      ('Nguyễn Văn A', '0912345678', 'nguyenvana@email.com', 'Hà Nội'),
-      ('Trần Thị B', '0987654321', 'tranthib@email.com', 'TP.HCM'),
-      ('Lê Văn C', '0909123456', 'levanc@email.com', 'Đà Nẵng')
-      ON CONFLICT DO NOTHING
-    `);
-
-    console.log('✅ Sample data inserted successfully!');
-
   } catch (error) {
     console.error('❌ Error initializing database:', error);
   }

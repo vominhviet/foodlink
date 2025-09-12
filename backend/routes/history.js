@@ -18,4 +18,19 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.post('/stock-history', async (req, res) => {
+  const { product_name, unit, quantity, price, type } = req.body;
+  // Lưu vào bảng stock_history
+  await pool.query(
+    'INSERT INTO stock_history (product_name, type, quantity, price, total, date, username) VALUES ($1, $2, $3, $4, $5, NOW(), $6)',
+    [product_name, type, quantity, price, quantity * price, 'admin']
+  );
+  // Cập nhật tồn kho sản phẩm (nếu có bảng products)
+  await pool.query(
+    'UPDATE products SET stock = stock + $1 WHERE name = $2',
+    [quantity, product_name]
+  );
+  res.json({ success: true });
+});
+
 module.exports = router;

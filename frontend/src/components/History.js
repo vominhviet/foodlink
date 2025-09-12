@@ -91,18 +91,20 @@ function History() {
   };
 
   return (
-    <div style={{width:'100vw', minHeight:'100vh', background:'#f6f8fa', display:'flex', justifyContent:'center', alignItems:'center', fontFamily:'Segoe UI, Roboto, Arial, sans-serif'}}>
-      <div style={{width:'90vw', maxWidth:1200, background:'#fff', padding:40, borderRadius:24, boxShadow:'0 8px 32px rgba(52,152,219,0.12)', position:'relative', margin:'40px auto'}}>
-        <button
-          style={{position:'absolute',top:32,right:40,padding:'10px 28px',background:'#1b73d8',color:'#fff',border:'none',borderRadius:8,fontWeight:'bold',cursor:'pointer',zIndex:1100, fontSize:17}}
-          onClick={()=>window.location.href='/dashboard'}
-        >Quay về Dashboard</button>
-        <button
-          style={{position:'absolute',top:32,left:40,padding:'10px 28px',background:'#27ae60',color:'#fff',border:'none',borderRadius:8,fontWeight:'bold',cursor:'pointer',zIndex:1100, fontSize:17}}
-          onClick={handleExportExcel}
-        >Export Excel</button>
-        <h2 style={{textAlign:'center', marginBottom:40, fontWeight:800, fontSize:36, color:'#1b73d8', letterSpacing:1}}>Danh sách hóa đơn</h2>
-        <div style={{display:'flex', gap:32, marginBottom:32, alignItems:'center', justifyContent:'center', flexWrap:'wrap'}}>
+    <div style={{width:'100vw', height:'100vh', background:'#f6f8fa', display:'flex', justifyContent:'center', alignItems:'center', fontFamily:'Segoe UI, Roboto, Arial, sans-serif', overflow:'hidden'}}>
+      <div style={{width:'100vw', height:'100vh', background:'#fff', padding:'32px 0', borderRadius:0, boxShadow:'0 8px 32px rgba(52,152,219,0.12)', position:'relative', margin:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center'}}>
+        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', width:'90vw', maxWidth:1200, margin:'0 auto 32px auto'}}>
+          <button
+            style={{padding:'10px 28px',background:'#27ae60',color:'#fff',border:'none',borderRadius:8,fontWeight:'bold',cursor:'pointer', fontSize:17}}
+            onClick={handleExportExcel}
+          >Export Excel</button>
+          <h2 style={{textAlign:'center', fontWeight:800, fontSize:36, color:'#1b73d8', letterSpacing:1, flex:1}}>Danh sách hóa đơn</h2>
+          <button
+            style={{padding:'10px 28px',background:'#1b73d8',color:'#fff',border:'none',borderRadius:8,fontWeight:'bold',cursor:'pointer', fontSize:17}}
+            onClick={()=>window.location.href='/dashboard'}
+          >Quay về Dashboard</button>
+        </div>
+  <div style={{display:'flex', gap:32, marginBottom:24, alignItems:'center', justifyContent:'center', flexWrap:'wrap'}}>
           <div>
             <label style={{fontWeight:600, marginRight:8}}>Từ ngày:</label>
             <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} style={{padding:'8px 16px', borderRadius:8, border:'1px solid #e3eaf3', fontSize:16}} />
@@ -115,16 +117,16 @@ function History() {
             <input type="text" value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="Tìm kiếm..." style={{padding:'8px 18px', borderRadius:8, border:'1px solid #e3eaf3', fontSize:16, minWidth:240}} />
           </div>
         </div>
-  <table style={{width:'100%', borderCollapse:'collapse', marginBottom:32, fontFamily:'Segoe UI, Roboto, Arial, sans-serif', fontSize:16, borderRadius:16, overflow:'hidden', boxShadow:'0 2px 16px #e3eaf3', background:'#fff', border:'2px solid #1b73d8'}}>
+  <table style={{width:'90vw', maxWidth:1200, borderCollapse:'collapse', margin:'0 auto 24px auto', fontFamily:'Segoe UI, Roboto, Arial, sans-serif', fontSize:15, borderRadius:12, overflow:'hidden', boxShadow:'0 2px 12px #e3eaf3', background:'#fff', border:'2px solid #1b73d8', textAlign:'center'}}>
           <thead>
             <tr style={{background:'#e3eaf3', color:'#222', fontWeight:700, fontSize:16}}>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Ngày lập</th>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Người bán</th>
+              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center', minWidth:140, fontWeight:700, fontSize:16}}>Ngày lập</th>
+              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center', minWidth:140, fontWeight:700, fontSize:16}}>Người bán</th>
               <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Khách hàng</th>
               <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>SĐT</th>
               <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Địa chỉ</th>
               <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Sản phẩm</th>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Tổng tiền</th>
+              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center', minWidth:180, fontWeight:700, fontSize:16}}>Tổng tiền</th>
               <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Thao tác</th>
             </tr>
           </thead>
@@ -148,43 +150,25 @@ function History() {
                 return isDateOk && isSearchOk;
               })
               .map(inv => (
-              <tr key={inv.id} style={{background:'#fff', borderBottom:'2px solid #1b73d8', transition:'background 0.2s', height:40}} onMouseEnter={e => e.currentTarget.style.background='#f8fafc'} onMouseLeave={e => e.currentTarget.style.background='#fff'}>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', fontWeight:500}}>{inv.created_at ? new Date(inv.created_at).toLocaleDateString('vi-VN') : ''}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center'}}>{inv.seller}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center'}}>{inv.customer_name}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center'}}>{inv.customer_phone || inv.phone || ''}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center'}}> {
-                  inv.address ||
-                  inv.customerAddress ||
-                  inv.customer_address ||
-                  inv.customeraddress ||
-                  ''
-                }</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center'}}>
-                  {Array.isArray(inv.items) ? inv.items.map((item, idx) => (
-                    <span key={idx}>{item.name}{idx < inv.items.length - 1 ? ', ' : ''}</span>
-                  )) : ''}
-                </td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', fontWeight:700, color:'#1565c0'}}>{Number(inv.total_amount).toLocaleString('vi-VN')} đ</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center'}}>
-                  <button
-                    style={{marginRight:8, padding:'8px 20px', background:'#e74c3c', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontWeight:600, boxShadow:'0 2px 8px #e3eaf3', transition:'box-shadow 0.2s', fontSize:15}}
-                    onClick={async () => {
-                      if(window.confirm('Bạn có chắc muốn xóa hóa đơn này?')) {
-                        await axios.delete(`http://localhost:5000/api/invoices/${inv.id}`);
-                        const res = await getInvoices();
-                        setInvoices(res.data);
-                      }
-                    }}
-                  >Xóa</button>
-                  <button
-                    style={{padding:'6px 16px', background:'#1b73d8', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontWeight:600, boxShadow:'0 2px 8px #e3eaf3', transition:'box-shadow 0.2s', fontSize:14}}
-                    onClick={() => { setViewInvoice(inv); setViewModal(true); }}
-                  >Xem</button>
-                  <button
-                    style={{padding:'6px 16px', background:'#27ae60', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontWeight:600, boxShadow:'0 2px 8px #e3eaf3', transition:'box-shadow 0.2s', fontSize:14}}
-                    onClick={() => openEdit(inv)}
-                  >Sửa</button>
+              <tr key={inv.id} style={{background:'#fff', borderBottom:'2px solid #1b73d8', transition:'background 0.2s', height:38}} onMouseEnter={e => e.currentTarget.style.background='#f8fafc'} onMouseLeave={e => e.currentTarget.style.background='#fff'}>
+                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', fontWeight:700, verticalAlign:'middle', minWidth:140, fontSize:15}}>{inv.created_at ? new Date(inv.created_at).toLocaleDateString('vi-VN') : ''}</td>
+                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', fontWeight:700, verticalAlign:'middle', minWidth:140, fontSize:15}}>{inv.seller}</td>
+                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>{inv.customer_name}</td>
+                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>{inv.customer_phone || inv.phone || ''}</td>
+                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>{inv.address || inv.customerAddress || inv.customer_address || inv.customeraddress || ''}</td>
+                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>{Array.isArray(inv.items) ? inv.items.map((item, idx) => (<span key={idx}>{item.name}{idx < inv.items.length - 1 ? ', ' : ''}</span>)) : ''}</td>
+                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', fontWeight:700, color:'#1565c0', verticalAlign:'middle', minWidth:180, fontSize:15}}>{Number(inv.total_amount).toLocaleString('vi-VN')} đ</td>
+                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>
+                  <div style={{display:'flex', justifyContent:'center', alignItems:'center', gap:8}}>
+                    <button
+                      style={{padding:'6px 14px', background:'#1b73d8', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontWeight:600, fontSize:14, minWidth:60}}
+                      onClick={() => { setViewInvoice(inv); setViewModal(true); }}
+                    >Xem</button>
+                    <button
+                      style={{padding:'6px 14px', background:'#27ae60', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontWeight:600, fontSize:14, minWidth:60}}
+                      onClick={() => openEdit(inv)}
+                    >Sửa</button>
+                  </div>
                 </td>
               </tr>
             ))}

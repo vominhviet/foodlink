@@ -3,10 +3,10 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
-import Products from './components/Products';
 import Invoice from './components/Invoice';
 import History from "./components/History";
-import Report from './components/Report';
+import Report from './components/Report'; 
+import StockHistory from './components/StockHistory';
 
 function ProtectedLayout({ children }) {
   // Layout cho các trang đã đăng nhập (có thể thêm header/sidebar ở đây)
@@ -34,10 +34,7 @@ function App() {
           path="/dashboard"
           element={isLoggedIn ? <ProtectedLayout><Dashboard /></ProtectedLayout> : <Navigate to="/login" />}
         />
-        <Route
-          path="/products"
-          element={isLoggedIn ? <ProtectedLayout><Products /></ProtectedLayout> : <Navigate to="/login" />}
-        />
+
         <Route
           path="/invoice"
           element={isLoggedIn ? <ProtectedLayout><Invoice /></ProtectedLayout> : <Navigate to="/login" />}
@@ -50,6 +47,7 @@ function App() {
           path="/report"
           element={isLoggedIn ? <ProtectedLayout><Report /></ProtectedLayout> : <Navigate to="/login" />}
         />
+        <Route path="/stock-history" element={<StockHistory />} />
 
         {/* Fallback route cho các trang không tồn tại */}
         <Route

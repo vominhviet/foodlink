@@ -1,7 +1,7 @@
 // frontend/src/components/Dashboard.js
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { getProducts, getInvoices, login, register } from "../api";
+import { getInvoices, login, register } from "../api";
 
 export default function Dashboard() {
   const [filteredRevenue, setFilteredRevenue] = useState(null);
@@ -51,11 +51,6 @@ export default function Dashboard() {
   }, 0);
   // setStats chỉ lưu revenue, các trường khác đã bỏ
   setStats({ revenue });
-
-  // Lấy danh sách sản phẩm rút gọn
-  const productsRes = await getProducts();
-  setProducts(productsRes.data.slice(0, 5)); // lấy 5 sản phẩm mới nhất
-
   // Lấy danh sách hóa đơn rút gọn
   setInvoices(allInvoices.slice(0, 5)); // lấy 5 hóa đơn mới nhất
 
@@ -136,10 +131,9 @@ export default function Dashboard() {
           </div>
           <nav style={{display:'flex', flexDirection:'column', gap:10}}> 
             <Link to="/dashboard" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#2ecc71', background:'#eafbe7', textDecoration:'none'}}>Dashboard</Link>
-            <Link to="/products" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#555', textDecoration:'none', marginTop:2}}>Sản phẩm</Link>
             <Link to="/invoice" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#555', textDecoration:'none', marginTop:2}}>Tạo Hóa đơn</Link>
             <Link to="/history" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#555', textDecoration:'none', marginTop:2}}>Quản Lý Đơn Hàng</Link>
-            <Link to="/report" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#555', textDecoration:'none', marginTop:2}}>Báo cáo</Link>
+            <Link to="/report" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#555', textDecoration:'none', marginTop:2}}>Báo Cáo Tồn Kho</Link>
           </nav>
         </div>
         <div style={{display:'flex', flexDirection:'column', gap:8, marginTop:32}}>
@@ -161,14 +155,31 @@ export default function Dashboard() {
         {/* Dashboard Grid */}
         <main style={{flex:1, padding:'40px 40px 0 40px'}}>
           <h2 style={{fontSize:28, fontWeight:700, color:'#222', marginBottom:32}}>Dashboard</h2>
+          <div style={{display:'flex', gap:24, marginBottom:32}}>
+            <button
+  onClick={() => navigate('/report')}
+  style={{
+    padding: '16px 40px',
+    fontWeight: 700,
+    fontSize: 18,
+    borderRadius: 12,
+    border: 'none',
+    background: '#27ae60',
+    color: '#fff',
+    boxShadow: '0 2px 8px #e3eaf3'
+  }}
+>
+  Quản lý nhập/xuất hàng
+</button>
+          </div>
           {/* Bộ lọc doanh thu theo ngày/tháng - doanh thu sẽ tự động cập nhật khi chọn ngày */}
           <div style={{display:'flex', gap:24, marginBottom:32, alignItems:'center', flexWrap:'wrap'}}>
             <div>
-              <label style={{fontWeight:600, marginRight:8}}>Từ ngày (chọn để tự động lọc):</label>
+              <label style={{fontWeight:600, marginRight:8}}>Từ ngày:</label>
               <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} style={{padding:'6px 12px', borderRadius:6, border:'1px solid #e3eaf3', fontSize:15}} />
             </div>
             <div>
-              <label style={{fontWeight:600, marginRight:8}}>Đến ngày (chọn để tự động lọc):</label>
+              <label style={{fontWeight:600, marginRight:8}}>Đến ngày:</label>
               <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} style={{padding:'6px 12px', borderRadius:6, border:'1px solid #e3eaf3', fontSize:15}} />
             </div>
             {/* Doanh thu sẽ tự động cập nhật khi bạn chọn ngày, không cần bấm nút */}
@@ -177,7 +188,6 @@ export default function Dashboard() {
             <div style={{background:'linear-gradient(135deg,#eafbe7,#fff)', borderRadius:18, boxShadow:'0 2px 12px rgba(46,204,113,0.08)', padding:28, display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
               <div>
                 <div style={{fontSize:15, color:'#888'}}>Tổng sản phẩm</div>
-                <div style={{fontSize:32, fontWeight:700, color:'#2ecc71', marginTop:8}}>{stats.totalProducts}</div>
               </div>
               <div style={{fontSize:13, color:'#27ae60', marginTop:18}}>Tăng so với tháng trước</div>
             </div>
@@ -215,7 +225,26 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Project Analytics & Progress (placeholder) */}
+          {/* Bảng tổng hợp tồn kho */}
+          <div style={{background:'#fff', borderRadius:18, boxShadow:'0 2px 12px #e3eaf3', padding:28, marginBottom:40}}>
+            <div style={{fontWeight:700, fontSize:18, color:'#27ae60', marginBottom:18}}>Tổng hợp tồn kho</div>
+            <table style={{width:'100%', borderCollapse:'collapse'}}>
+              <thead>
+                <tr style={{textAlign:'left', background:'#f6f8fa'}}>
+                  <th style={{padding:'8px 0'}}>Tên sản phẩm</th>
+                  <th style={{padding:'8px 0'}}>Tồn kho</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((p) => (
+                  <tr key={p.id} style={{borderBottom:'1px solid #f0f0f0'}}>
+                    <td style={{padding:'8px 0'}}>{p.name}</td>
+                    <td style={{padding:'8px 0'}}>{p.stock}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:32}}>
             <div style={{background:'#fff', borderRadius:18, boxShadow:'0 2px 12px rgba(46,204,113,0.08)', padding:28}}>
               <div style={{fontWeight:600, color:'#222', marginBottom:12}}>Phân tích sản phẩm</div>
@@ -242,25 +271,6 @@ export default function Dashboard() {
 
           {/* Bảng rút gọn danh sách sản phẩm, hóa đơn, báo cáo */}
           <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(320px, 1fr))', gap:32, marginTop:48}}>
-            <div style={{background:'#fff', borderRadius:18, boxShadow:'0 2px 12px rgba(46,204,113,0.08)', padding:28}}>
-              <div style={{fontWeight:700, fontSize:18, color:'#2ecc71', marginBottom:18}}>SẢN PHẨM</div>
-              <table style={{width:'100%', borderCollapse:'collapse'}}>
-                <thead>
-                  <tr style={{textAlign:'left', background:'#f6f8fa'}}>
-                    <th style={{padding:'8px 0'}}>Tên</th>
-                    <th style={{padding:'8px 0'}}>Giá</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((p) => (
-                    <tr key={p.id} style={{borderBottom:'1px solid #f0f0f0'}}>
-                      <td style={{padding:'8px 0'}}>{p.name}</td>
-                      <td style={{padding:'8px 0'}}>{p.price?.toLocaleString()}₫</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
             <div style={{background:'#fff', borderRadius:18, boxShadow:'0 2px 12px rgba(52,152,219,0.08)', padding:28}}>
               <div style={{fontWeight:700, fontSize:18, color:'#3498db', marginBottom:18}}>Hóa đơn mới nhất</div>
               <table style={{width:'100%', borderCollapse:'collapse'}}>

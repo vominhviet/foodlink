@@ -20,13 +20,13 @@ initDatabase();
 
 // routes
 const authRoutes = require('./routes/auth');
-const productsRoutes = require('./routes/products');
+
 const invoicesRoutes = require('./routes/invoices');
 const historyRoutes = require('./routes/history');
 const reportsRoutes = require('./routes/reports');
 
 app.use('/api/auth', authRoutes);
-app.use('/api/products', productsRoutes);
+
 app.use('/api/invoices', invoicesRoutes);
 app.use('/api/history', historyRoutes);
 app.use('/api/reports', reportsRoutes);
