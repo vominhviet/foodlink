@@ -20,17 +20,23 @@ initDatabase();
 
 // routes
 const authRoutes = require('./routes/auth');
-
-const invoicesRoutes = require('./routes/invoices');
-const historyRoutes = require('./routes/history');
-const reportsRoutes = require('./routes/reports');
-
 app.use('/api/auth', authRoutes);
 
+// router tạo bang đon hang
+const invoicesRoutes = require('./routes/invoices');
 app.use('/api/invoices', invoicesRoutes);
+
+// routes lịch sử đơn hàng
+const historyRoutes = require('./routes/history');
 app.use('/api/history', historyRoutes);
+
+// routes báo cáo
+const reportsRoutes = require('./routes/reports');
 app.use('/api/reports', reportsRoutes);
 
+// routes quản lí chi phí
+const expensesRoutes = require('./routes/expenses');
+app.use('/api/expenses', expensesRoutes);
 // test api
 app.get("/api/test", (req, res) => {
   res.json({ message: "API hoạt động bình thường 🚀" });

@@ -10,7 +10,7 @@
 .infoInput:focus {
     border-bottom: 1px solid #007bff;
 }
-/* InvoicePreview.module.css - Style giống demo HTML, dùng class cho React component */
+/* InvoicePreview.module.css - */
 .container {
     max-width: 1000px;
     margin: 0 auto;

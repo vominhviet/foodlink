@@ -31,7 +31,7 @@ async function initDatabase() {
       )
     `);
 
-    // Tạo bảng invoices
+    // Tạo bảng hóa đơn invoices
     await pool.query(`
       CREATE TABLE IF NOT EXISTS invoices (
         id SERIAL PRIMARY KEY,
@@ -46,7 +46,7 @@ async function initDatabase() {
       )
     `);
 
-    // Tạo bảng history
+    // Tạo bảng history lich sử đơn hàng
     await pool.query(`
       CREATE TABLE IF NOT EXISTS history (
         id SERIAL PRIMARY KEY,
@@ -56,33 +56,35 @@ async function initDatabase() {
         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-
-    // Tạo bảng sản phẩm
+    // Tạo bảng đơn nhập kho
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS products (
+      CREATE TABLE IF NOT EXISTS import_orders (
         id SERIAL PRIMARY KEY,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS import_order_items (
+        id SERIAL PRIMARY KEY,
+        order_id INTEGER REFERENCES import_orders(id),
         name VARCHAR(255),
         unit VARCHAR(50),
-        stock INTEGER DEFAULT 0,
-        price INTEGER DEFAULT 0,
-        description TEXT
-      );
-    `);
-
-    // Tạo bảng lịch sử nhập/xuất kho
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS stock_history (
-        id SERIAL PRIMARY KEY,
-        product_id INTEGER,
-        product_name VARCHAR(255),
-        type VARCHAR(10), -- 'import' hoặc 'export'
         quantity INTEGER,
         price INTEGER,
-        total INTEGER,
-        date TIMESTAMP DEFAULT NOW(),
-        username VARCHAR(100)
+        total INTEGER
       );
     `);
+    // Tạo bảng expenses quản lí chi phí
+    await pool.query(`
+  CREATE TABLE IF NOT EXISTS expenses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    type VARCHAR(100),
+    amount INTEGER,
+    note TEXT,
+    date DATE DEFAULT CURRENT_DATE
+  );
+`);
 
     console.log('✅ Database tables created successfully!');
   } catch (error) {

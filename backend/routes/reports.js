@@ -5,10 +5,7 @@ const pool = require('../config/db');
 // GET dashboard statistics
 router.get('/dashboard', async (req, res) => {
   try {
-    // Lấy tổng số sản phẩm
-    const productsResult = await pool.query('SELECT COUNT(*) FROM products');
-    const totalProducts = parseInt(productsResult.rows[0].count);
-    
+   
     // Lấy tổng số Tạo đơn hôm nay
     const today = new Date().toISOString().split('T')[0];
     const invoicesResult = await pool.query(
@@ -25,7 +22,7 @@ router.get('/dashboard', async (req, res) => {
     const revenue = parseFloat(revenueResult.rows[0].total_revenue);
     
     res.json({
-      totalProducts,
+  
       todayInvoices,
       revenue,
       growth: 15 // Có thể tính toán dựa trên dữ liệu thực tế

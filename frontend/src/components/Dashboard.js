@@ -10,17 +10,16 @@ export default function Dashboard() {
   const [allInvoices, setAllInvoices] = useState([]);
   const [user, setUser] = useState(null);
   const [stats, setStats] = useState({
-    totalProducts: 0,
+
     todayInvoices: 0,
     revenue: 0,
     growth: 0
   });
-  const [products, setProducts] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
+ 
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,8 +30,7 @@ export default function Dashboard() {
           navigate("/login");
           return;
         }
-  // Lấy danh sách hóa đơn đầy đủ để tính doanh thu
-  // allInvoicesRes.data là mảng các hóa đơn lấy từ backend
+  // Lấy danh sách hóa đơn đầy đủ để tính doanh thu allInvoicesRes.data là mảng các hóa đơn lấy từ backend
   const allInvoicesRes = await getInvoices();
   setAllInvoices(allInvoicesRes.data);
   console.log('Invoices:', allInvoicesRes.data); // Debug: in ra danh sách hóa đơn
@@ -134,6 +132,7 @@ export default function Dashboard() {
             <Link to="/invoice" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#555', textDecoration:'none', marginTop:2}}>Tạo Hóa đơn</Link>
             <Link to="/history" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#555', textDecoration:'none', marginTop:2}}>Quản Lý Đơn Hàng</Link>
             <Link to="/report" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#555', textDecoration:'none', marginTop:2}}>Báo Cáo Tồn Kho</Link>
+            <Link to="/expenses" style={{padding:'10px 18px', borderRadius:10, fontWeight:600, color:'#555', textDecoration:'none', marginTop:2}}>Quản Lý Chi Phí</Link>
           </nav>
         </div>
         <div style={{display:'flex', flexDirection:'column', gap:8, marginTop:32}}>
@@ -156,21 +155,7 @@ export default function Dashboard() {
         <main style={{flex:1, padding:'40px 40px 0 40px'}}>
           <h2 style={{fontSize:28, fontWeight:700, color:'#222', marginBottom:32}}>Dashboard</h2>
           <div style={{display:'flex', gap:24, marginBottom:32}}>
-            <button
-  onClick={() => navigate('/report')}
-  style={{
-    padding: '16px 40px',
-    fontWeight: 700,
-    fontSize: 18,
-    borderRadius: 12,
-    border: 'none',
-    background: '#27ae60',
-    color: '#fff',
-    boxShadow: '0 2px 8px #e3eaf3'
-  }}
->
-  Quản lý nhập/xuất hàng
-</button>
+
           </div>
           {/* Bộ lọc doanh thu theo ngày/tháng - doanh thu sẽ tự động cập nhật khi chọn ngày */}
           <div style={{display:'flex', gap:24, marginBottom:32, alignItems:'center', flexWrap:'wrap'}}>
@@ -236,39 +221,11 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((p) => (
-                  <tr key={p.id} style={{borderBottom:'1px solid #f0f0f0'}}>
-                    <td style={{padding:'8px 0'}}>{p.name}</td>
-                    <td style={{padding:'8px 0'}}>{p.stock}</td>
-                  </tr>
-                ))}
+
               </tbody>
             </table>
           </div>
-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:32}}>
-            <div style={{background:'#fff', borderRadius:18, boxShadow:'0 2px 12px rgba(46,204,113,0.08)', padding:28}}>
-              <div style={{fontWeight:600, color:'#222', marginBottom:12}}>Phân tích sản phẩm</div>
-              <div style={{display:'flex', gap:8, marginTop:16}}>
-                <div style={{height:48, width:16, background:'#eafbe7', borderRadius:8}}></div>
-                <div style={{height:36, width:16, background:'#2ecc71', borderRadius:8}}></div>
-                <div style={{height:60, width:16, background:'#b7e4c7', borderRadius:8}}></div>
-                <div style={{height:28, width:16, background:'#eafbe7', borderRadius:8}}></div>
-                <div style={{height:44, width:16, background:'#b7e4c7', borderRadius:8}}></div>
-              </div>
-            </div>
-            <div style={{background:'#fff', borderRadius:18, boxShadow:'0 2px 12px rgba(46,204,113,0.08)', padding:28, display:'flex', flexDirection:'column', justifyContent:'space-between'}}>
-              <div style={{fontWeight:600, color:'#222', marginBottom:12}}>Tiến độ dự án</div>
-              <div style={{display:'flex', alignItems:'center', gap:18, marginTop:16}}>
-                <div style={{width:64, height:64, borderRadius:'50%', background:'#eafbe7', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, fontWeight:700, color:'#2ecc71'}}>41%</div>
-                <div style={{display:'flex', flexDirection:'column', gap:4}}>
-                  <span style={{fontSize:13, color:'#27ae60'}}>Hoàn thành</span>
-                  <span style={{fontSize:13, color:'#f1c40f'}}>Đang làm</span>
-                  <span style={{fontSize:13, color:'#888'}}>Chờ xử lý</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
+          
           {/* Bảng rút gọn danh sách sản phẩm, hóa đơn, báo cáo */}
           <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(320px, 1fr))', gap:32, marginTop:48}}>
             <div style={{background:'#fff', borderRadius:18, boxShadow:'0 2px 12px rgba(52,152,219,0.08)', padding:28}}>

@@ -6,7 +6,9 @@ import Dashboard from "./components/Dashboard";
 import Invoice from './components/Invoice';
 import History from "./components/History";
 import Report from './components/Report'; 
-import StockHistory from './components/StockHistory';
+import Expense from "./components/Expenses";
+
+
 
 function ProtectedLayout({ children }) {
   // Layout cho các trang đã đăng nhập (có thể thêm header/sidebar ở đây)
@@ -34,7 +36,6 @@ function App() {
           path="/dashboard"
           element={isLoggedIn ? <ProtectedLayout><Dashboard /></ProtectedLayout> : <Navigate to="/login" />}
         />
-
         <Route
           path="/invoice"
           element={isLoggedIn ? <ProtectedLayout><Invoice /></ProtectedLayout> : <Navigate to="/login" />}
@@ -47,10 +48,14 @@ function App() {
           path="/report"
           element={isLoggedIn ? <ProtectedLayout><Report /></ProtectedLayout> : <Navigate to="/login" />}
         />
-        <Route path="/stock-history" element={<StockHistory />} />
+        <Route
+          path="/expenses"
+          element={isLoggedIn ? <ProtectedLayout><Expense /></ProtectedLayout> : <Navigate to="/login" />}
+        />
 
         {/* Fallback route cho các trang không tồn tại */}
-        <Route
+        
+        <Route  
           path="*"
           element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} />}
         />

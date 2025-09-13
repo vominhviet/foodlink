@@ -23,3 +23,8 @@ export const getInvoices = async () => {
 export const createInvoice = async (invoiceData) => {
   return axios.post(`${API_BASE_URL}/invoices`, invoiceData);
 };
+
+// Tạo hóa đơn quản lí chi phí
+export const createExpense = async (expenseData) => {
+  return axios.post(`${API_BASE_URL}/expenses`, expenseData);
+};
