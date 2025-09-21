@@ -37,6 +37,7 @@ app.use('/api/reports', reportsRoutes);
 // routes quản lí chi phí
 const expensesRoutes = require('./routes/expenses');
 app.use('/api/expenses', expensesRoutes);
+
 // test api
 app.get("/api/test", (req, res) => {
   res.json({ message: "API hoạt động bình thường 🚀" });

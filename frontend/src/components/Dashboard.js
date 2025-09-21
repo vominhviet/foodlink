@@ -15,6 +15,7 @@ export default function Dashboard() {
     revenue: 0,
     growth: 0
   });
+
   const [invoices, setInvoices] = useState([]);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -225,7 +226,7 @@ export default function Dashboard() {
               </tbody>
             </table>
           </div>
-          
+
           {/* Bảng rút gọn danh sách sản phẩm, hóa đơn, báo cáo */}
           <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(320px, 1fr))', gap:32, marginTop:48}}>
             <div style={{background:'#fff', borderRadius:18, boxShadow:'0 2px 12px rgba(52,152,219,0.08)', padding:28}}>

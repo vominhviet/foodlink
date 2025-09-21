@@ -62,38 +62,37 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Lấy danh sách chi phí có filter
-router.get("/", async (req, res) => {
-  const { from, to, type } = req.query; // from, to = ngày, type = loại chi phí
-  let query = "SELECT * FROM expenses WHERE 1=1";
-  const values = [];
-  let idx = 1;
-
-  if (from) {
-    query += ` AND date >= $${idx++}`;
-    values.push(from);
-  }
-  if (to) {
-    query += ` AND date <= $${idx++}`;
-    values.push(to);
-  }
-  if (type) {
-    query += ` AND type ILIKE $${idx++}`;
-    values.push(`%${type}%`);
-  }
-
-  query += " ORDER BY date DESC";
-
+// Lấy danh sách chi phí + filter
+router.get('/', async (req, res) => {
   try {
-    const result = await pool.query(query, values);
+    const { from, to, type } = req.query;
+    let query = 'SELECT * FROM expenses WHERE 1=1';
+    const params = [];
 
-    // Tính tổng chi phí
-    const total = result.rows.reduce((sum, r) => sum + Number(r.amount), 0);
+    if (from) {
+      params.push(from);
+      query += ` AND date >= $${params.length}`;
+    }
+    if (to) {
+      params.push(to);
+      query += ` AND date <= $${params.length}`;
+    }
+    if (type) {
+      params.push(type);
+      query += ` AND type ILIKE $${params.length}`;
+    }
 
-    res.json({ expenses: result.rows, total });
+    query += ' ORDER BY date DESC';
+
+    const result = await pool.query(query, params);
+
+    // Tính tổng
+    const total = result.rows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+
+    res.json({ success: true, expenses: result.rows, total });
   } catch (error) {
     console.error("Error fetching expenses:", error);
-    res.status(500).json({ error: "Lỗi khi lấy dữ liệu chi phí" });
+    res.status(500).json({ success: false, error: "Lỗi khi lấy dữ liệu" });
   }
 });
 

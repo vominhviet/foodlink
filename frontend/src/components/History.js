@@ -1,271 +1,190 @@
-// chưa danh sách đơn hàng
-import React, { useEffect, useState } from "react";
+// src/components/History.js
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { getInvoices } from "../api";
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+import * as XLSX from "xlsx";
 
-function History() {
-  // State cho filter và tìm kiếm
+export default function History() {
+  const navigate = useNavigate();
+  const [invoices, setInvoices] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [filterFrom, setFilterFrom] = useState("");
   const [filterTo, setFilterTo] = useState("");
-  const [invoices, setInvoices] = useState([]);
-  const [editModal, setEditModal] = useState(false);
-  const [editInvoice, setEditInvoice] = useState(null);
-  const [viewModal, setViewModal] = useState(false);
   const [viewInvoice, setViewInvoice] = useState(null);
 
- useEffect(() => {
-  getInvoices().then((res) => {
-    setInvoices(res.data);
-  });
-}, []);
-  // Hàm mở modal sửa
-  const openEdit = (inv) => {
-    setEditInvoice({
-      ...inv,
-      items: Array.isArray(inv.items) ? inv.items.map(item => ({...item})) : []
-    });
-    setEditModal(true);
-  };
+  useEffect(() => {
+    fetchInvoices();
+  }, []);
 
-  // Hàm lưu sửa đổi
-  const handleEditSave = async () => {
+  const fetchInvoices = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/invoices/${editInvoice.id}`, {
-        date: editInvoice.created_at,
-        seller: editInvoice.seller,
-        customer_name: editInvoice.customer_name,
-        customerPhone: editInvoice.customerPhone,
-        address: editInvoice.address,
-        items: editInvoice.items,
-        total_amount: editInvoice.items.reduce((sum, item) => sum + (parseInt(item.price) || 0) * (parseInt(item.quantity) || 0), 0),
-        status: 'pending'
-      });
-      // Cập nhật lại danh sách
-      const res = await getInvoices();
+      const res = await axios.get("http://localhost:5000/api/invoices");
       setInvoices(res.data);
-      setEditModal(false);
     } catch (err) {
-      alert('Lưu sửa đổi thất bại!');
+      console.error("Lỗi lấy danh sách:", err);
     }
   };
 
-  // Hàm thay đổi trường trong modal
-  const handleEditChange = (field, value) => {
-    setEditInvoice({ ...editInvoice, [field]: value });
-  };
-  const handleEditItemChange = (idx, field, value) => {
-    const newItems = editInvoice.items.map((item, i) => i === idx ? { ...item, [field]: value } : item);
-    setEditInvoice({ ...editInvoice, items: newItems });
-  };
-  const addEditItemRow = () => {
-    setEditInvoice({ ...editInvoice, items: [...editInvoice.items, { name: '', unit: '', quantity: 1, price: 0 }] });
-  };
-  const removeEditItemRow = (idx) => {
-    if (editInvoice.items.length > 1) {
-      setEditInvoice({ ...editInvoice, items: editInvoice.items.filter((_, i) => i !== idx) });
+  const handleDelete = async (id) => {
+    if (!window.confirm("Bạn có chắc muốn xóa hóa đơn này?")) return;
+    try {
+      await axios.delete(`http://localhost:5000/api/invoices/${id}`);
+      fetchInvoices();
+    } catch (err) {
+      console.error("Lỗi xóa:", err);
     }
   };
 
-  // Hàm export ra file Excel
-  const handleExportExcel = () => {
-    // Chuyển dữ liệu hóa đơn thành mảng đơn giản
-    const data = invoices.map(inv => ({
-      'Mã hóa đơn': inv.invoice_number,
-      'Khách hàng': inv.customer_name,
-      'Số điện thoại': inv.customer_phone,
-      'Địa chỉ': inv.customer_address,
-      'Tổng tiền': inv.total_amount,
-      'Ngày lập': inv.created_at ? inv.created_at.slice(0, 10) : '',
-      'Người bán': inv.seller,
-      'Trạng thái': inv.status
+  const handleEdit = (invoice) => {
+    window.localStorage.setItem("editInvoice", JSON.stringify(invoice));
+    navigate("/invoice");
+  };
+
+  const handleExport = () => {
+    const data = filteredInvoices.map((inv) => ({
+      "Mã HĐ": inv.invoice_number,
+      "Khách hàng": inv.customer_name,
+      "SĐT": inv.customer_phone,
+      "Địa chỉ": inv.customer_address,
+      "Người bán": inv.seller,
+      "Ngày": new Date(inv.created_at).toLocaleString("vi-VN"),
+      "Tổng tiền": inv.total_amount,
+      "Trạng thái": inv.status,
     }));
+
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Invoices');
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    saveAs(blob, 'danh_sach_hoa_don.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Hóa đơn");
+    XLSX.writeFile(workbook, "hoa_don.xlsx");
   };
 
+  // lọc theo từ khóa và ngày
+  const filteredInvoices = invoices.filter((inv) => {
+    const searchMatch =
+      inv.customer_name?.toLowerCase().includes(searchText.toLowerCase()) ||
+      inv.customer_phone?.toLowerCase().includes(searchText.toLowerCase()) ||
+      inv.customer_address?.toLowerCase().includes(searchText.toLowerCase()) ||
+      inv.seller?.toLowerCase().includes(searchText.toLowerCase()) ||
+      inv.invoice_number?.toLowerCase().includes(searchText.toLowerCase());
+
+    const createdAt = inv.created_at ? new Date(inv.created_at) : null;
+    const fromDate = filterFrom ? new Date(filterFrom) : null;
+    const toDate = filterTo ? new Date(filterTo) : null;
+
+    const dateMatch =
+      (!fromDate || (createdAt && createdAt >= fromDate)) &&
+      (!toDate || (createdAt && createdAt <= toDate));
+
+    return searchMatch && dateMatch;
+  });
+
   return (
-    <div style={{width:'100vw', height:'100vh', background:'#f6f8fa', display:'flex', justifyContent:'center', alignItems:'center', fontFamily:'Segoe UI, Roboto, Arial, sans-serif', overflow:'hidden'}}>
-      <div style={{width:'100vw', height:'100vh', background:'#fff', padding:'32px 0', borderRadius:0, boxShadow:'0 8px 32px rgba(52,152,219,0.12)', position:'relative', margin:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center'}}>
-        <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', width:'90vw', maxWidth:1200, margin:'0 auto 32px auto'}}>
-          <button
-            style={{padding:'10px 28px',background:'#27ae60',color:'#fff',border:'none',borderRadius:8,fontWeight:'bold',cursor:'pointer', fontSize:17}}
-            onClick={handleExportExcel}
-          >Export Excel</button>
-          <h2 style={{textAlign:'center', fontWeight:800, fontSize:36, color:'#1b73d8', letterSpacing:1, flex:1}}>Danh sách hóa đơn</h2>
-          <button
-            style={{padding:'10px 28px',background:'#1b73d8',color:'#fff',border:'none',borderRadius:8,fontWeight:'bold',cursor:'pointer', fontSize:17}}
-            onClick={()=>window.location.href='/dashboard'}
-          >Quay về Dashboard</button>
-        </div>
-  <div style={{display:'flex', gap:32, marginBottom:24, alignItems:'center', justifyContent:'center', flexWrap:'wrap'}}>
-          <div>
-            <label style={{fontWeight:600, marginRight:8}}>Từ ngày:</label>
-            <input type="date" value={filterFrom} onChange={e => setFilterFrom(e.target.value)} style={{padding:'8px 16px', borderRadius:8, border:'1px solid #e3eaf3', fontSize:16}} />
-          </div>
-          <div>
-            <label style={{fontWeight:600, marginRight:8}}>Đến ngày:</label>
-            <input type="date" value={filterTo} onChange={e => setFilterTo(e.target.value)} style={{padding:'8px 16px', borderRadius:8, border:'1px solid #e3eaf3', fontSize:16}} />
-          </div>
-          <div>
-            <input type="text" value={searchText} onChange={e => setSearchText(e.target.value)} placeholder="Tìm kiếm..." style={{padding:'8px 18px', borderRadius:8, border:'1px solid #e3eaf3', fontSize:16, minWidth:240}} />
-          </div>
-        </div>
-  <table style={{width:'90vw', maxWidth:1200, borderCollapse:'collapse', margin:'0 auto 24px auto', fontFamily:'Segoe UI, Roboto, Arial, sans-serif', fontSize:15, borderRadius:12, overflow:'hidden', boxShadow:'0 2px 12px #e3eaf3', background:'#fff', border:'2px solid #1b73d8', textAlign:'center'}}>
-          <thead>
-            <tr style={{background:'#e3eaf3', color:'#222', fontWeight:700, fontSize:16}}>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center', minWidth:140, fontWeight:700, fontSize:16}}>Ngày lập</th>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center', minWidth:140, fontWeight:700, fontSize:16}}>Người bán</th>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Khách hàng</th>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>SĐT</th>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Địa chỉ</th>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Sản phẩm</th>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center', minWidth:180, fontWeight:700, fontSize:16}}>Tổng tiền</th>
-              <th style={{padding:'16px 0', border:'2px solid #1b73d8', textAlign:'center'}}>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoices
-              .filter(inv => {
-                const createdDate = inv.created_at ? new Date(inv.created_at) : null;
-                const filterFromDate = filterFrom ? new Date(filterFrom) : null;
-                const filterToDate = filterTo ? new Date(filterTo) : null;
-                let isDateOk = true;
-                if (filterFromDate && createdDate) isDateOk = createdDate >= filterFromDate;
-                if (filterToDate && createdDate) isDateOk = isDateOk && createdDate <= filterToDate;
-                const search = searchText.trim().toLowerCase();
-                let isSearchOk = true;
-                if (search) {
-                  isSearchOk = (inv.seller?.toLowerCase().includes(search) || "") ||
-                    (inv.customer_name?.toLowerCase().includes(search) || "") ||
-                    (inv.customer_phone?.toLowerCase().includes(search) || "") ||
-                    (inv.phone?.toLowerCase().includes(search) || "");
-                }
-                return isDateOk && isSearchOk;
-              })
-              .map(inv => (
-              <tr key={inv.id} style={{background:'#fff', borderBottom:'2px solid #1b73d8', transition:'background 0.2s', height:38}} onMouseEnter={e => e.currentTarget.style.background='#f8fafc'} onMouseLeave={e => e.currentTarget.style.background='#fff'}>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', fontWeight:700, verticalAlign:'middle', minWidth:140, fontSize:15}}>{inv.created_at ? new Date(inv.created_at).toLocaleDateString('vi-VN') : ''}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', fontWeight:700, verticalAlign:'middle', minWidth:140, fontSize:15}}>{inv.seller}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>{inv.customer_name}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>{inv.customer_phone || inv.phone || ''}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>{inv.address || inv.customerAddress || inv.customer_address || inv.customeraddress || ''}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>{Array.isArray(inv.items) ? inv.items.map((item, idx) => (<span key={idx}>{item.name}{idx < inv.items.length - 1 ? ', ' : ''}</span>)) : ''}</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', fontWeight:700, color:'#1565c0', verticalAlign:'middle', minWidth:180, fontSize:15}}>{Number(inv.total_amount).toLocaleString('vi-VN')} đ</td>
-                <td style={{padding:'8px 0', border:'2px solid #1b73d8', textAlign:'center', verticalAlign:'middle'}}>
-                  <div style={{display:'flex', justifyContent:'center', alignItems:'center', gap:8}}>
-                    <button
-                      style={{padding:'6px 14px', background:'#1b73d8', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontWeight:600, fontSize:14, minWidth:60}}
-                      onClick={() => { setViewInvoice(inv); setViewModal(true); }}
-                    >Xem</button>
-                    <button
-                      style={{padding:'6px 14px', background:'#27ae60', color:'#fff', border:'none', borderRadius:8, cursor:'pointer', fontWeight:600, fontSize:14, minWidth:60}}
-                      onClick={() => openEdit(inv)}
-                    >Sửa</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-  {invoices.length === 0 && <div style={{textAlign:'center', color:'#888'}}>Chưa có hóa đơn nào được lưu.</div>}
+    <div style={{ padding: 20 }}>
+      <h2>Lịch sử hóa đơn</h2>
+
+      {/* Nút Export + Quay về Dashboard */}
+      <div style={{ marginBottom: 20 }}>
+        <button onClick={handleExport} style={{ marginRight: 10 }}>
+          📤 Xuất Excel
+        </button>
+        <button onClick={() => navigate("/")}>🏠 Quay về Dashboard</button>
       </div>
-      
-      {/* Modal sửa hóa đơn */}
-      {editModal && editInvoice && (
-        <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.2)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}}>
-          <div style={{background:'#fff',padding:32,borderRadius:0,width:'100vw',height:'100vh',maxWidth:'100vw',maxHeight:'100vh',boxShadow:'0 2px 16px #aaa',position:'relative',overflow:'auto',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-            <h3 style={{marginBottom:16}}>Sửa hóa đơn</h3>
-            <div style={{marginBottom:12}}>
-              <label>Ngày lập: </label>
-              <input type="datetime-local" value={editInvoice.created_at ? new Date(editInvoice.created_at).toISOString().slice(0,16) : ''} onChange={e => handleEditChange('created_at', e.target.value)} />
-            </div>
-            <div style={{marginBottom:12}}>
-              <label>Người bán: </label>
-              <input value={editInvoice.seller} onChange={e => handleEditChange('seller', e.target.value)} />
-            </div>
-            <div style={{marginBottom:12}}>
-              <label>Khách hàng: </label>
-              <input value={editInvoice.customer_name} onChange={e => handleEditChange('customer_name', e.target.value)} />
-            </div>
-            <div style={{marginBottom:12}}>
-              <label>Số điện thoại: </label>
-              <input value={editInvoice.customerPhone || ''} onChange={e => handleEditChange('customerPhone', e.target.value)} />
-            </div>
-            <div style={{marginBottom:12}}>
-              <label>Địa chỉ: </label>
-              <input value={editInvoice.address || ''} onChange={e => handleEditChange('address', e.target.value)} />
-            </div>
-            <div style={{marginBottom:12}}>
-              <label>Sản phẩm:</label>
-              <table style={{width:'100%',marginTop:8}}>
-                <thead>
-                  <tr><th>Tên</th><th>Đơn vị</th><th>Số lượng</th><th>Đơn giá</th><th></th></tr>
-                </thead>
-                <tbody>
-                  {editInvoice.items.map((item, idx) => (
-                    <tr key={idx}>
-                      <td><input value={item.name} onChange={e => handleEditItemChange(idx, 'name', e.target.value)} /></td>
-                      <td><input value={item.unit} onChange={e => handleEditItemChange(idx, 'unit', e.target.value)} /></td>
-                      <td><input type="number" min={1} value={item.quantity} onChange={e => handleEditItemChange(idx, 'quantity', e.target.value)} /></td>
-                      <td><input type="number" min={0} value={item.price} onChange={e => handleEditItemChange(idx, 'price', e.target.value)} /></td>
-                      <td><button onClick={() => removeEditItemRow(idx)} disabled={editInvoice.items.length<=1}>Xóa</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <button style={{marginTop:8}} onClick={addEditItemRow}>Thêm sản phẩm</button>
-            </div>
-            <div style={{marginTop:24,display:'flex',gap:16}}>
-              <button style={{padding:'8px 24px',background:'#27ae60',color:'#fff',border:'none',borderRadius:6,fontWeight:'bold',cursor:'pointer'}} onClick={handleEditSave}>Lưu sửa đổi</button>
-              <button style={{padding:'8px 24px',background:'#e74c3c',color:'#fff',border:'none',borderRadius:6,fontWeight:'bold',cursor:'pointer'}} onClick={()=>setEditModal(false)}>Hủy</button>
-            </div>
-          </div>
+
+      {/* Bộ lọc */}
+      <div style={{ marginBottom: 20 }}>
+        <input
+          placeholder="Tìm kiếm..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ marginRight: 10 }}
+        />
+        <input
+          type="date"
+          value={filterFrom}
+          onChange={(e) => setFilterFrom(e.target.value)}
+          style={{ marginRight: 10 }}
+        />
+        <input
+          type="date"
+          value={filterTo}
+          onChange={(e) => setFilterTo(e.target.value)}
+        />
+      </div>
+
+      {/* Bảng hóa đơn */}
+      <table border="1" width="100%" cellPadding="8">
+        <thead>
+          <tr>
+            <th>Mã HĐ</th>
+            <th>Khách hàng</th>
+            <th>SĐT</th>
+            <th>Địa chỉ</th>
+            <th>Người bán</th>
+            <th>Ngày</th>
+            <th>Tổng tiền</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredInvoices.map((inv) => (
+            <tr key={inv.id}>
+              <td>{inv.invoice_number}</td>
+              <td>{inv.customer_name}</td>
+              <td>{inv.customer_phone}</td>
+              <td>{inv.customer_address}</td>
+              <td>{inv.seller}</td>
+              <td>{new Date(inv.created_at).toLocaleString("vi-VN")}</td>
+              <td>{Number(inv.total_amount).toLocaleString("vi-VN")} đ</td>
+              <td>{inv.status}</td>
+              <td>
+                <button onClick={() => setViewInvoice(inv)}>Xem</button>
+                <button onClick={() => handleEdit(inv)}>Sửa</button>
+                <button onClick={() => handleDelete(inv.id)}>Xóa</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Tổng cộng */}
+      {filteredInvoices.length > 0 && (
+        <div style={{ marginTop: 10, fontWeight: "bold" }}>
+          Tổng cộng:{" "}
+          {filteredInvoices
+            .reduce((sum, inv) => sum + Number(inv.total_amount || 0), 0)
+            .toLocaleString("vi-VN")}{" "}
+          đ
         </div>
       )}
-        {/* Modal xem hóa đơn (preview) full màn hình */}
-        {viewModal && viewInvoice && (
-          <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'rgba(0,0,0,0.2)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center'}}>
-            <div style={{background:'#fff',padding:48,borderRadius:0,width:'100vw',height:'100vh',maxWidth:'100vw',maxHeight:'100vh',boxShadow:'0 2px 16px #aaa',position:'relative',overflow:'auto',display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-              {/* Nội dung hóa đơn preview, thay thế bằng code hiện tại của bạn nếu cần */}
-              <h3 style={{marginBottom:16}}>Xem hóa đơn</h3>
-              <div style={{marginBottom:12}}>
-                <b>Ngày lập:</b> {viewInvoice.created_at ? new Date(viewInvoice.created_at).toLocaleString() : ''}
-              </div>
-              <div style={{marginBottom:12}}>
-                <b>Người bán:</b> {viewInvoice.seller}
-              </div>
-              <div style={{marginBottom:12}}>
-                <b>Khách hàng:</b> {viewInvoice.customer_name}
-              </div>
-              <div style={{marginBottom:12}}>
-                <b>Số điện thoại:</b> {viewInvoice.customer_phone || viewInvoice.phone || ''}
-              </div>
-              <div style={{marginBottom:12}}>
-                <b>Địa chỉ:</b> {viewInvoice.address || viewInvoice.customerAddress || viewInvoice.customer_address || viewInvoice.customeraddress || ''}
-              </div>
-              <div style={{marginBottom:12}}>
-                <b>Sản phẩm:</b> {Array.isArray(viewInvoice.items) ? viewInvoice.items.map((item, idx) => (
-                  <span key={idx}>{item.name}{idx < viewInvoice.items.length - 1 ? ', ' : ''}</span>
-                )) : ''}
-              </div>
-              <div style={{marginBottom:12, fontWeight:'bold', color:'#1565c0'}}>
-                <b>Tổng tiền:</b> {Number(viewInvoice.total_amount).toLocaleString('vi-VN')} đ
-              </div>
-              <div style={{marginTop:24}}>
-                <button style={{padding:'8px 24px',background:'#e74c3c',color:'#fff',border:'none',borderRadius:6,fontWeight:'bold',cursor:'pointer'}} onClick={()=>setViewModal(false)}>Đóng</button>
-              </div>
-            </div>
-          </div>
-        )}
+
+      {/* Modal chi tiết */}
+      {viewInvoice && (
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #ddd",
+            padding: 20,
+            marginTop: 20,
+          }}
+        >
+          <h3>Chi tiết hóa đơn</h3>
+          <p>Mã HĐ: {viewInvoice.invoice_number}</p>
+          <p>Khách hàng: {viewInvoice.customer_name}</p>
+          <p>SĐT: {viewInvoice.customer_phone}</p>
+          <p>Địa chỉ: {viewInvoice.customer_address}</p>
+          <p>Người bán: {viewInvoice.seller}</p>
+          <p>
+            Ngày: {new Date(viewInvoice.created_at).toLocaleString("vi-VN")}
+          </p>
+          <p>
+            Tổng tiền:{" "}
+            {Number(viewInvoice.total_amount).toLocaleString("vi-VN")} đ
+          </p>
+          <p>Trạng thái: {viewInvoice.status}</p>
+          <button onClick={() => setViewInvoice(null)}>Đóng</button>
+        </div>
+      )}
     </div>
   );
 }
-
-export default History;
