@@ -84,10 +84,15 @@ export default function History() {
 
       {/* Nút Export + Quay về Dashboard */}
       <div style={{ marginBottom: 20 }}>
-        <button onClick={handleExport} style={{ marginRight: 10 }}>
+        <button onClick={handleExport} style={{ padding: "6px 5px", background: "#636e72", color: "#fff", border: "none", borderRadius: 6 }}>
           📤 Xuất Excel
         </button>
-        <button onClick={() => navigate("/")}>🏠 Quay về Dashboard</button>
+                <button
+          onClick={() => navigate("/dashboard")}
+          style={{ padding: "6px 5px", background: "#636e72", color: "#fff", border: "none", borderRadius: 6 }}
+        >
+          ⬅ Trở lại Dashboard
+        </button>
       </div>
 
       {/* Bộ lọc */}
@@ -174,15 +179,44 @@ export default function History() {
           <p>SĐT: {viewInvoice.customer_phone}</p>
           <p>Địa chỉ: {viewInvoice.customer_address}</p>
           <p>Người bán: {viewInvoice.seller}</p>
-          <p>
-            Ngày: {new Date(viewInvoice.created_at).toLocaleString("vi-VN")}
-          </p>
+          <p>Ngày: {new Date(viewInvoice.created_at).toLocaleString("vi-VN")}</p>
           <p>
             Tổng tiền:{" "}
             {Number(viewInvoice.total_amount).toLocaleString("vi-VN")} đ
           </p>
           <p>Trạng thái: {viewInvoice.status}</p>
-          <button onClick={() => setViewInvoice(null)}>Đóng</button>
+
+          {/* ✅ Danh sách sản phẩm */}
+          <h4>Sản phẩm</h4>
+          <table border="1" width="100%" cellPadding="6">
+            <thead>
+              <tr>
+                <th>Tên SP</th>
+                <th>Đơn vị</th>
+                <th>Số lượng</th>
+                <th>Giá</th>
+                <th>Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.isArray(viewInvoice.items) &&
+                viewInvoice.items.map((item, idx) => (
+                  <tr key={idx}>
+                    <td>{item.name}</td>
+                    <td>{item.unit}</td>
+                    <td>{item.quantity}</td>
+                    <td>{Number(item.price).toLocaleString("vi-VN")} đ</td>
+                    <td>
+                      {(item.price * item.quantity).toLocaleString("vi-VN")} đ
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+
+          <button onClick={() => setViewInvoice(null)} style={{ marginTop: 10 }}>
+            Đóng
+          </button>
         </div>
       )}
     </div>

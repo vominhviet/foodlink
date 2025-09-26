@@ -100,7 +100,14 @@ export default function ExpenseManager() {
   const handleSave = async () => {
     try {
       setMessage("");
-      await axios.post("http://localhost:5000/api/expenses", { items: rows });
+
+      // ✅ Chuẩn hóa ngày trước khi gửi
+      const normalized = rows.map(r => ({
+        ...r,
+        date: r.date ? new Date(r.date).toISOString().slice(0, 10) : null
+      }));
+
+      await axios.post("http://localhost:5000/api/expenses", { items: normalized });
       setMessage("💾 Lưu chi phí thành công!");
       setRows([{ name: "", type: "", amount: 0, note: "", date: "" }]);
       fetchExpenses();
@@ -134,7 +141,7 @@ export default function ExpenseManager() {
       Loại: e.type,
       "Số tiền": Number(e.amount || 0),
       "Ghi chú": e.note,
-      Ngày: e.date ? e.date.slice(0, 10) : "",
+      Ngày: e.date ? new Date(e.date).toLocaleDateString("vi-VN") : "",
     }));
     const ws = XLSX.utils.json_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
@@ -240,7 +247,7 @@ export default function ExpenseManager() {
                   <td style={td}>{e.type}</td>
                   <td style={{ ...td, textAlign: "right" }}>{Number(e.amount || 0).toLocaleString()} đ</td>
                   <td style={td}>{e.note}</td>
-                  <td style={td}>{e.date ? e.date.slice(0, 10) : ""}</td>
+                  <td style={td}>{e.date ? new Date(e.date).toLocaleDateString("vi-VN") : ""}</td>
                   <td style={td}><button onClick={() => deleteExpense(e.id)}>❌</button></td>
                 </tr>
               ))

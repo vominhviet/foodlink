@@ -42,19 +42,20 @@ async function initDatabase() {
 
     // Bảng hóa đơn
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS invoices (
-        id SERIAL PRIMARY KEY,
-        invoice_number VARCHAR(50) UNIQUE NOT NULL,
-        customer_id INTEGER REFERENCES customers(id),
-        user_id INTEGER REFERENCES users(id),
-        seller VARCHAR(100),
-        items JSONB NOT NULL,
-        total_amount DECIMAL(12, 2) NOT NULL,
-        status VARCHAR(20) DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
+  CREATE TABLE IF NOT EXISTS invoices (
+    id SERIAL PRIMARY KEY,
+    invoice_number VARCHAR(50) UNIQUE NOT NULL,
+    customer_id INTEGER REFERENCES customers(id),
+    user_id INTEGER REFERENCES users(id),
+    seller VARCHAR(100),
+    items JSONB NOT NULL,
+    total_amount DECIMAL(12, 2) NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at DATE DEFAULT CURRENT_DATE,
+    updated_at DATE DEFAULT CURRENT_DATE
+  )
+`);
+
 
     // Trigger updated_at cho invoices
     await pool.query(`
