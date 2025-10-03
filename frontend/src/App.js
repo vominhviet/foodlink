@@ -1,17 +1,15 @@
-
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
-import Invoice from './components/Invoice';
+import InvoiceManager from './components/InvoiceManager';
 import History from "./components/History";
-import Report from './components/Report'; 
-import Expense from "./components/Expenses";
-
-
+import Expenses from "./components/Expenses";
+import InventoryReport from './components/InventoryReport';
+import InventoryManager from "./components/InventoryManager";
+import ImportForm from "./components/ImportForm";
 
 function ProtectedLayout({ children }) {
-  // Layout cho các trang đã đăng nhập (có thể thêm header/sidebar ở đây)
   return <div>{children}</div>;
 }
 
@@ -38,7 +36,7 @@ function App() {
         />
         <Route
           path="/invoice"
-          element={isLoggedIn ? <ProtectedLayout><Invoice /></ProtectedLayout> : <Navigate to="/login" />}
+          element={isLoggedIn ? <ProtectedLayout><InvoiceManager /></ProtectedLayout> : <Navigate to="/login" />}
         />
         <Route
           path="/history"
@@ -46,16 +44,23 @@ function App() {
         />
         <Route
           path="/report"
-          element={isLoggedIn ? <ProtectedLayout><Report /></ProtectedLayout> : <Navigate to="/login" />}
+          element={isLoggedIn ? <ProtectedLayout><InventoryReport /></ProtectedLayout> : <Navigate to="/login" />}
         />
         <Route
           path="/expenses"
-          element={isLoggedIn ? <ProtectedLayout><Expense /></ProtectedLayout> : <Navigate to="/login" />}
+          element={isLoggedIn ? <ProtectedLayout><Expenses /></ProtectedLayout> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/inventory"
+          element={isLoggedIn ? <ProtectedLayout><InventoryManager /></ProtectedLayout> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/import"
+          element={isLoggedIn ? <ProtectedLayout><ImportForm /></ProtectedLayout> : <Navigate to="/login" />}
         />
 
         {/* Fallback route cho các trang không tồn tại */}
-        
-        <Route  
+        <Route
           path="*"
           element={<Navigate to={isLoggedIn ? "/dashboard" : "/login"} />}
         />

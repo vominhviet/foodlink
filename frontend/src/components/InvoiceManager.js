@@ -36,10 +36,6 @@ function Invoice() {
   };
 
   const handleItemChange = (idx, field, value) => {
-    // Xử lý dấu phẩy cho số thập phân (ví dụ: 0,500 -> 0.500)
-    if (field === "quantity" || field === "price") {
-      value = value.replace(",", ".");
-    }
     const newItems = items.map((item, i) =>
       i === idx ? { ...item, [field]: value } : item
     );
@@ -50,39 +46,20 @@ function Invoice() {
     if (items.length > 1) setItems(items.filter((_, i) => i !== idx));
   };
 
-  // Hàm chuyển đổi quantity sang kg (giả sử giá là theo kg)
-  const getQuantityInKg = (quantityStr, unitStr) => {
-    const quantity = parseFloat(quantityStr) || 0;
-    const unit = unitStr.toLowerCase().trim();
-    if (unit.includes('g')) {
-      return quantity / 1000;
-    } else if (unit.includes('kg')) {
-      return quantity;
-    } else {
-      // Nếu không phải kg hoặc g, giả sử là kg
-      return quantity;
-    }
-  };
-
   const subtotal = items.reduce(
     (sum, item) =>
-      sum + (parseFloat(item.price) || 0) * getQuantityInKg(item.quantity, item.unit),
+      sum + (parseInt(item.price) || 0) * (parseInt(item.quantity) || 0),
     0
   );
 
   const handleSaveInvoice = async () => {
-    const processedItems = items.map(item => ({
-      ...item,
-      quantity: parseFloat(item.quantity) || 0,
-      price: parseFloat(item.price) || 0
-    }));
     const invoiceData = {
       date,
       seller,
       customer_name: customerName,
       customer_phone: customerPhone,
       customer_address: customerAddress,
-      items: processedItems,
+      items,
       total_amount: subtotal,
       status: "pending",
     };
@@ -99,18 +76,13 @@ function Invoice() {
   };
 
   const handlePreview = () => {
-    const processedItems = items.map(item => ({
-      ...item,
-      quantity: parseFloat(item.quantity) || 0,
-      price: parseFloat(item.price) || 0
-    }));
     setPreviewData({
       date,
       seller,
       customerName,
       customerPhone,
       customerAddress,
-      items: processedItems,
+      items,
       total_amount: subtotal,
     });
     setShowPreview(true);
@@ -129,10 +101,10 @@ function Invoice() {
           <div className="font-bold text-2xl text-blue-900 uppercase mb-2 text-center font-serif">
             CÔNG TY FOODLINK
           </div>
-          <div className="text-gray-700 text-center font-semibold">
+          <div className="text-gray-700 text-center font-serif">
             Địa chỉ: 668/7e, Quốc Lộ 13, Hiệp Bình Phước, Thủ Đức, TP.Hồ Chí Minh
           </div>
-          <div className="text-gray-700 text-center font-semibold">
+          <div className="text-gray-700 text-center font-serif">
             Điện thoại: 0335094943
           </div>
         </div>
@@ -213,15 +185,14 @@ function Invoice() {
               <th className="p-3">Tên sản phẩm</th>
               <th className="p-3">Đơn vị tính</th>
               <th className="p-3">Số lượng</th>
-              <th className="p-3">Đơn giá (VND/kg)</th>
+              <th className="p-3">Đơn giá</th>
               <th className="p-3">Thành tiền</th>
               <th className="p-3"></th>
             </tr>
           </thead>
           <tbody>
             {items.map((item, idx) => {
-              const quantityInKg = getQuantityInKg(item.quantity, item.unit);
-              const amount = (parseFloat(item.price) || 0) * quantityInKg;
+              const amount = (parseInt(item.price) || 0) * (parseInt(item.quantity) || 0);
               return (
                 <tr key={idx} className="bg-white border-b border-blue-100">
                   <td className="p-3 text-center">{idx + 1}</td>
@@ -237,32 +208,30 @@ function Invoice() {
                     <input
                       value={item.unit}
                       onChange={(e) => handleItemChange(idx, "unit", e.target.value)}
-                      placeholder="kg hoặc g"
+                      placeholder="Đơn vị"
                       className="w-full font-semibold border-b-2 border-gray-400 bg-transparent outline-none px-2 text-center"
                     />
                   </td>
                   <td className="p-3 text-center">
                     <input
-                      type="text"
+                      type="number"
                       min={0}
                       value={item.quantity}
                       onChange={(e) => handleItemChange(idx, "quantity", e.target.value)}
-                      placeholder="0,500"
                       className="w-full font-semibold border-b-2 border-gray-400 bg-transparent outline-none px-2 text-center"
                     />
                   </td>
                   <td className="p-3 text-center">
                     <input
-                      type="text"
+                      type="number"
                       min={0}
                       value={item.price}
                       onChange={(e) => handleItemChange(idx, "price", e.target.value)}
-                      placeholder="0"
                       className="w-full font-semibold border-b-2 border-gray-400 bg-transparent outline-none px-2 text-center"
                     />
                   </td>
                   <td className="p-3 text-center font-semibold">
-                    {Math.round(amount).toLocaleString("vi-VN")}
+                    {amount.toLocaleString("vi-VN")}
                   </td>
                   <td className="p-3">
                     <button
@@ -306,7 +275,7 @@ function Invoice() {
       <div className="mt-8 bg-gray-50 rounded-xl px-8 py-5 flex justify-end items-center text-lg font-bold">
         <span className="mr-6">Tổng Tiền hóa đơn:</span>
         <span className="text-blue-700 font-extrabold text-xl">
-          {Math.round(subtotal).toLocaleString("vi-VN")} đ
+          {subtotal.toLocaleString("vi-VN")} đ
         </span>
       </div>
 
