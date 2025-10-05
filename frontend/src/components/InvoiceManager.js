@@ -36,6 +36,10 @@ function Invoice() {
   };
 
   const handleItemChange = (idx, field, value) => {
+    // Xử lý dấu phẩy cho số thập phân (ví dụ: 0,500 -> 0.500)
+    if (field === "quantity" || field === "price") {
+      value = value.replace(",", ".");
+    }
     const newItems = items.map((item, i) =>
       i === idx ? { ...item, [field]: value } : item
     );
@@ -48,7 +52,7 @@ function Invoice() {
 
   const subtotal = items.reduce(
     (sum, item) =>
-      sum + (parseInt(item.price) || 0) * (parseInt(item.quantity) || 0),
+      sum + (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0),
     0
   );
 
@@ -59,7 +63,11 @@ function Invoice() {
       customer_name: customerName,
       customer_phone: customerPhone,
       customer_address: customerAddress,
-      items,
+      items: items.map(item => ({
+        ...item,
+        quantity: parseFloat(item.quantity) || 0,
+        price: parseFloat(item.price) || 0
+      })),
       total_amount: subtotal,
       status: "pending",
     };
@@ -82,7 +90,11 @@ function Invoice() {
       customerName,
       customerPhone,
       customerAddress,
-      items,
+      items: items.map(item => ({
+        ...item,
+        quantity: parseFloat(item.quantity) || 0,
+        price: parseFloat(item.price) || 0
+      })),
       total_amount: subtotal,
     });
     setShowPreview(true);
@@ -192,7 +204,7 @@ function Invoice() {
           </thead>
           <tbody>
             {items.map((item, idx) => {
-              const amount = (parseInt(item.price) || 0) * (parseInt(item.quantity) || 0);
+              const amount = (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0);
               return (
                 <tr key={idx} className="bg-white border-b border-blue-100">
                   <td className="p-3 text-center">{idx + 1}</td>
@@ -214,19 +226,21 @@ function Invoice() {
                   </td>
                   <td className="p-3 text-center">
                     <input
-                      type="number"
+                      type="text"
                       min={0}
                       value={item.quantity}
                       onChange={(e) => handleItemChange(idx, "quantity", e.target.value)}
+                      placeholder="0,500"
                       className="w-full font-semibold border-b-2 border-gray-400 bg-transparent outline-none px-2 text-center"
                     />
                   </td>
                   <td className="p-3 text-center">
                     <input
-                      type="number"
+                      type="text"
                       min={0}
                       value={item.price}
                       onChange={(e) => handleItemChange(idx, "price", e.target.value)}
+                      placeholder="0"
                       className="w-full font-semibold border-b-2 border-gray-400 bg-transparent outline-none px-2 text-center"
                     />
                   </td>
